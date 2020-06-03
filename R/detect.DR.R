@@ -26,7 +26,7 @@
 #' \code{dr.res} A dataframe with the last column indicating whether the state/county has delay-reporting issue (0=No, 1=Yes).
 #' \cr
 #'
-#' @details This R package is the implementation program for article entitled "Comparing and Integrating US COVID-19 Daily Data from Multiple Sources: A County-Level Dataset with Local Characteristics" by Guannan Wang, Zhiling Gu, Xinyi Li, Shan Yu, Myungjin Kim, Yueying Wang, Lei Gao, and Li Wang.
+#' @details This R package is the implementation program for article entitled "Comparing and Integrating US COVID-19 Data from Multiple Sources: A County-Level Dataset with Local Features" by Guannan Wang, Zhiling Gu, Xinyi Li, Shan Yu, Myungjin Kim, Yueying Wang, Lei Gao, and Li Wang.
 #'
 #' @examples
 #'

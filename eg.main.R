@@ -31,19 +31,35 @@ for (i.s in source.state[2]){
 
 ######################################################################
 # Step 1. Order-Dependence Detection
-state.show = "Ohio"
-res1.OD = detect.OD(I.county, "county", state.show)
+res1.OD = detect.OD(I.county, "county")
 dat.I.county = res1.OD$dat.new
-res2.OD = detect.OD(D.county, "county", state.show)
+res2.OD = detect.OD(D.county, "county")
 dat.D.county = res2.OD$dat.new
 res3.OD = detect.OD(I.state, "state")
 dat.I.state = res3.OD$dat.new
 res4.OD = detect.OD(D.state, "state")
 dat.D.state = res4.OD$dat.new
 
+dat.I = dat.I.county[apply(is.na(dat.I.county), 1, sum) < (ncol(dat.I.county) - 1),]
+dat.D = dat.D.county[apply(is.na(dat.D.county), 1, sum) < (ncol(dat.D.county) - 1),]
+dat.rep.county = repair.cdcar(dat.I = dat.I, dat.D = dat.D, h = 7, level = "county", method = "AR")
+I.county = dat.rep.county$dat.rep.I
+save(I.county, file = paste0("data/I_county_", as.character(date.update), ".rda"))
+D.county = dat.rep.county$dat.rep.D
+save(D.county, file = paste0("data/D_county_", as.character(date.update), ".rda"))
+
 dat.I = dat.I.state[apply(is.na(dat.I.state), 1, sum) < (ncol(dat.I.state) - 1),]
 dat.D = dat.D.state[apply(is.na(dat.D.state), 1, sum) < (ncol(dat.D.state) - 1),]
-dat.rep = repair.cdcar(dat.I = dat.I, dat.D = dat.D, h = 7, level = "state", method = "AR")
+dat.rep.state = repair.cdcar(dat.I = dat.I, dat.D = dat.D, h = 7, level = "state", method = "AR")
+I.state = dat.rep.state$dat.rep.I
+save(I.state, file = paste0("data/I_state_", as.character(date.update), ".rda"))
+D.state = dat.rep.state$dat.rep.D
+save(D.state, file = paste0("data/D_state_", as.character(date.update), ".rda"))
+
+write.csv(I.county, paste0("data/I_county_", as.character(date.update), ".csv"), row.names = FALSE)
+write.csv(I.state, paste0("data/I_state_", as.character(date.update), ".csv"), row.names = FALSE)
+write.csv(D.county, paste0("data/D_county_", as.character(date.update), ".csv"), row.names = FALSE)
+write.csv(D.state, paste0("data/D_state_", as.character(date.update), ".csv"), row.names = FALSE)
 
 ind = (1:nrow(dat.I))[apply(is.na(dat.I[, -1]), 1, sum) > 0]
 dat3.plot = res3.OD$dat.sub[ind,]

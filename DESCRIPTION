@@ -1,10 +1,10 @@
 Package: cdcar
 Type: Package
-Title: COVID-19 Data Checking and Reparing (CDCAR)
+Title: COVID-19 Data Checking and Repairing (CDCAR)
 Version: 1.0.0
 Author: Guannan Wang, Zhiling Gu, Xinyi Li, Shan Yu, Myungjin Kim, Yueying Wang, Lei Gao, and Li Wang
 Maintainer: Zhiling Gu <zlgu@iastate.edu> Guannan Wang <gwang01@wm.edu>
-Description: This R package is the implementation program for article entitled "Comparing and Integrating US COVID-19 Daily Data from Multiple Sources: A County-Level Dataset with Local Characteristics" by Guannan Wang, Zhiling Gu, Xinyi Li, Shan Yu, Myungjin Kim, Yueying Wang, Lei Gao, and Li Wang.
+Description: This R package is the implementation program for article entitled "Comparing and Integrating US COVID-19 Data from Multiple Sources: A County-Level Dataset with Local Features" by Guannan Wang, Zhiling Gu, Xinyi Li, Shan Yu, Myungjin Kim, Yueying Wang, Lei Gao, and Li Wang.
 License: GPL (>= 2)
 Imports: 
   Triangulation,
