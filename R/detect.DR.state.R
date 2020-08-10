@@ -5,7 +5,7 @@
 detect.DR.state <- function(dat = list(), state.show = NULL, log.test = FALSE, plot.show = FALSE, test = "wo"){
 	# Extract subset of the data based on state.show and county.show
 	if(length(state.show) > 0){
-		dat.sub <- dat %>% filter(State %in% state.show) ; # dim(dat.sub)
+		dat.sub <- dat %>% filter(State %in% state.show) # dim(dat.sub)
 	}else{
 		dat.sub <- dat
 	}

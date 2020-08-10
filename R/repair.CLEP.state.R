@@ -43,15 +43,15 @@ repair.CLEP.state <- function(dat.I = list(), dat.D = NULL, h = 5){
         }
       }
     }
-    dat.rep.I = cbind(dat.I[, 1:3], dat.rep.I)
+    dat.rep.I = cbind(dat.I[, 1], dat.rep.I)
     names(dat.rep.I) = names(dat.I)
   }
 
   # Death data repairing
   if(!is.null(dat.D)){
-    n.day = ncol(dat.D) - 3
+    n.day = ncol(dat.D) - 1
     n.loc = nrow(dat.D)
-    dat.rep.D = dat.D[, -(1:3)]
+    dat.rep.D = dat.D[, -1]
     for(j in 1:n.loc){
       dat.tmp = dat.rep.D[j,]
       ind.D = which(is.na(dat.tmp))
@@ -85,7 +85,7 @@ repair.CLEP.state <- function(dat.I = list(), dat.D = NULL, h = 5){
         }
       }
     }
-    dat.rep.D = cbind(dat.D[, 1:3], dat.rep.D)
+    dat.rep.D = cbind(dat.D[, 1], dat.rep.D)
     names(dat.rep.D) = names(dat.D)
   }
   list(dat.rep.I = dat.rep.I, dat.rep.D = dat.rep.D)
