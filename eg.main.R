@@ -9,7 +9,7 @@ library(seastests)
 library(segmented)
 library(tscount)
 
-date.update = as.Date("2020-07-26")
+date.update = as.Date("2020-08-10")
 
 ######################################################################
 # Step 0. Read in Data
@@ -17,18 +17,30 @@ source.county = c("NYT", "JHU", "USAFacts")
 source.state = c("Atlantic", "NYT", "JHU", "USAFacts")
 
 # Compare infection state data
-for (i.s in source.county[1]){
+for (i.s in source.county[2]){
   I.county <- read.delim(paste0("data/", i.s, "_all_Infected_county_", as.character(date.update), "_updated_original.tsv"), header = TRUE)
   D.county <- read.delim(paste0("data/", i.s, "_all_Death_county_", as.character(date.update), "_updated_original.tsv"), header = TRUE)
   I.county = eval(parse(text = paste0("I.county.", i.s, " = I.county[,c(1:3, ncol(I.county):4)]")))
   D.county = eval(parse(text = paste0("D.county.", i.s, " = D.county[,c(1:3, ncol(I.county):4)]")))
+  iI = (1:nrow(I.county))[apply(is.na(I.county), 1, sum) == (ncol(I.county) - 3)]
+  I.county = I.county[-iI, ]
+  iD = (1:nrow(D.county))[apply(is.na(D.county), 1, sum) == (ncol(D.county) - 3)]
+  D.county = D.county[-iD, ]
 }
 
-for (i.s in source.state[2]){
+for (i.s in source.state[3]){
   I.state <- read.delim(paste0("data/", i.s, "_all_Infected_state_", as.character(date.update), "_updated_original.tsv"), header = TRUE)
   D.state <- read.delim(paste0("data/", i.s, "_all_Death_state_", as.character(date.update), "_updated_original.tsv"), header = TRUE)
   I.state = eval(parse(text = paste0("I.state.", i.s, " = I.state[,c(1, ncol(I.state):2)]")))
   D.state = eval(parse(text = paste0("D.state.", i.s, " = D.state[,c(1, ncol(D.state):2)]")))
+  iI = (1:nrow(I.state))[apply(is.na(I.state), 1, sum) == (ncol(I.state) - 1)]
+  if(length(iI) > 0){
+    I.state = I.state[-iI, ]
+  }
+  iD = (1:nrow(D.state))[apply(is.na(D.state), 1, sum) == (ncol(D.state) - 1)]
+  if(length(iD) > 0){
+    D.state = D.state[-iD, ]
+  }
 }
 
 state = unique(I.state$State)
@@ -37,119 +49,21 @@ n.state = length(state)
 date = substring(names(I.state[, -1]), 2)
 date = as.Date(gsub('\\.', '-', date))
 day = weekdays(date)
-tmp = as.matrix(I.state[, -1])
-Inew.state = I.state[, -1] - cbind(0, I.state[, -c(1, (n.day + 1))])
-tmp.mon = Inew.state[, day == "Monday"]
-tmp.tue = Inew.state[, day == "Tuesday"]
-tmp.wed = Inew.state[, day == "Wednesday"]
-tmp.thu = Inew.state[, day == "Thursday"]
-tmp.fri = Inew.state[, day == "Friday"]
-tmp.sat = Inew.state[, day == "Saturday"]
-tmp.sun = Inew.state[, day == "Sunday"]
-mean.state.mon = apply(tmp.mon, 1, mean)
-mean.state.tue = apply(tmp.tue, 1, mean)
-mean.state.wed = apply(tmp.wed, 1, mean)
-mean.state.thu = apply(tmp.thu, 1, mean)
-mean.state.fri = apply(tmp.fri, 1, mean)
-mean.state.sat = apply(tmp.sat, 1, mean)
-mean.state.sun = apply(tmp.sun, 1, mean)
-mean.mon = mean(mean.state.mon)
-mean.tue = mean(mean.state.tue)
-mean.wed = mean(mean.state.wed)
-mean.thu = mean(mean.state.thu)
-mean.fri = mean(mean.state.fri)
-mean.sat = mean(mean.state.sat)
-mean.sun = mean(mean.state.sun)
-c(mean.mon, mean.tue, mean.wed, mean.thu, mean.fri, mean.sat, mean.sun)
-Imean.state = cbind(mean.state.mon, mean.state.tue, mean.state.wed,
-                    mean.state.thu, mean.state.fri, mean.state.sat,
-                    mean.state.sun)
-Imean.state = data.frame(State = I.state[, 1], Imean.state = Imean.state)
-write.csv(Imean.state, "data/Imean.state.csv", row.names = FALSE)
-
-Dnew.state = D.state[, -1] - cbind(0, D.state[, -c(1, (n.day + 1))])
-tmp.mon = Dnew.state[, day == "Monday"]
-tmp.tue = Dnew.state[, day == "Tuesday"]
-tmp.wed = Dnew.state[, day == "Wednesday"]
-tmp.thu = Dnew.state[, day == "Thursday"]
-tmp.fri = Dnew.state[, day == "Friday"]
-tmp.sat = Dnew.state[, day == "Saturday"]
-tmp.sun = Dnew.state[, day == "Sunday"]
-mean.state.mon = apply(tmp.mon, 1, mean)
-mean.state.tue = apply(tmp.tue, 1, mean)
-mean.state.wed = apply(tmp.wed, 1, mean)
-mean.state.thu = apply(tmp.thu, 1, mean)
-mean.state.fri = apply(tmp.fri, 1, mean)
-mean.state.sat = apply(tmp.sat, 1, mean)
-mean.state.sun = apply(tmp.sun, 1, mean)
-mean.mon = mean(mean.state.mon)
-mean.tue = mean(mean.state.tue)
-mean.wed = mean(mean.state.wed)
-mean.thu = mean(mean.state.thu)
-mean.fri = mean(mean.state.fri)
-mean.sat = mean(mean.state.sat)
-mean.sun = mean(mean.state.sun)
-c(mean.mon, mean.tue, mean.wed, mean.thu, mean.fri, mean.sat, mean.sun)
-Dmean.state = cbind(mean.state.mon, mean.state.tue, mean.state.wed,
-                    mean.state.thu, mean.state.fri, mean.state.sat,
-                    mean.state.sun)
-Dmean.state = data.frame(State = D.state[, 1], Dmean.state = Dmean.state)
-write.csv(Dmean.state, "data/Dmean.state.csv", row.names = FALSE)
-
-# tmp = as.matrix(I.state[, -1])
-# tmp = as.matrix(I.state[, -1]) - as.matrix(cbind(0, I.state[, -c(1, (n.day + 1))]))
-tmp = as.matrix(I.state[, -1]) - as.matrix(cbind(matrix(0, nrow = n.state, ncol = 7), I.state[, -c(1, (n.day + (-5:1)))]))
-for(i in 1:n.state){
-  filename = "plot/New_Infect_lagts_"
-  title = "New Infected Count Lagged Time Seires:"
-  state.show = state[i]
-  count = as.vector(tmp[i,])
-  dat = data.frame(date = date, day = day, count = count)
-  plot.ts(state.show, dat, title, filename)
-}
-
-# tmp = as.matrix(D.state[, -1])
-# tmp = as.matrix(D.state[, -1]) - as.matrix(cbind(0, D.state[, -c(1, (n.day + 1))]))
-tmp = as.matrix(D.state[, -1]) - as.matrix(cbind(matrix(0, nrow = n.state, ncol = 7), I.state[, -c(1, (n.day + (-5:1)))]))
-for(i in 1:n.state){
-  filename = "plot/New_Death_lagts_"
-  title = "New Death Count Lagged Time Seires:"
-  state.show = state[i]
-  count = as.vector(tmp[i,])
-  dat = data.frame(date = date, day = day, count = count)
-  plot.ts(state.show, dat, title, filename)
-}
-
-state = unique(I.county$State)
-county = I.county$County
-n.day = ncol(I.county) - 3
-n.state = length(state)
-n.county = length(county)
-date = substring(names(I.county[, -(1:3)]), 2)
-date = as.Date(gsub('\\.', '-', date))
-day = weekdays(date)
-for(i in 1:n.county){
-  filename = "plot/infection_ts_"
-  title = "Infected Count Time Seires:"
-  state.show = I.county$State[i]
-  county.show = I.county$County[i]
-  loc.show = paste0(county.show, ", ", state.show)
-  tmp = as.matrix(I.county[, -(1:3)])
-  count = as.vector(tmp[i,])
-  dat = data.frame(date = date, day = day, count = count)
-  plot.ts(loc.show, dat, title, filename)
-}
 
 ######################################################################
 # Step 1. Order-Dependence Detection
 res1.OD = detect.OD(I.county, "county")
 dat.I.county = res1.OD$dat.new
+sum(is.na(dat.I.county))
 res2.OD = detect.OD(D.county, "county")
 dat.D.county = res2.OD$dat.new
-# res3.OD = detect.OD(I.state, "state")
-# dat.I.state = res3.OD$dat.new
-# res4.OD = detect.OD(D.state, "state")
-# dat.D.state = res4.OD$dat.new
+sum(is.na(dat.D.county))
+res3.OD = detect.OD(I.state, "state")
+dat.I.state = res3.OD$dat.new
+sum(is.na(dat.I.state))
+res4.OD = detect.OD(D.state, "state")
+dat.D.state = res4.OD$dat.new
+sum(is.na(dat.D.state))
 
 dat.I = dat.I.county[apply(is.na(dat.I.county), 1, sum) < (ncol(dat.I.county) - 1),]
 dat.D = dat.D.county[apply(is.na(dat.D.county), 1, sum) < (ncol(dat.D.county) - 1),]
@@ -159,38 +73,71 @@ save(I.county, file = paste0("data/I_county_", as.character(date.update), ".rda"
 D.county = dat.rep.county$dat.rep.D
 save(D.county, file = paste0("data/D_county_", as.character(date.update), ".rda"))
 
-# dat.I = dat.I.state[apply(is.na(dat.I.state), 1, sum) < (ncol(dat.I.state) - 1),]
-# dat.D = dat.D.state[apply(is.na(dat.D.state), 1, sum) < (ncol(dat.D.state) - 1),]
-# dat.rep.state = repair.cdcar(dat.I = dat.I, dat.D = dat.D, h = 7, level = "state", method = "AR")
-# I.state = dat.rep.state$dat.rep.I
-# save(I.state, file = paste0("data/I_state_", as.character(date.update), ".rda"))
-# D.state = dat.rep.state$dat.rep.D
-# save(D.state, file = paste0("data/D_state_", as.character(date.update), ".rda"))
+dat.I = dat.I.state[apply(is.na(dat.I.state), 1, sum) < (ncol(dat.I.state) - 1),]
+dat.D = dat.D.state[apply(is.na(dat.D.state), 1, sum) < (ncol(dat.D.state) - 1),]
+dat.rep.state = repair.cdcar(dat.I = dat.I, dat.D = dat.D, h = 7, level = "state", method = "AR")
+I.state = dat.rep.state$dat.rep.I
+save(I.state, file = paste0("data/", i.s, "_I_state_", as.character(date.update), ".rda"))
+D.state = dat.rep.state$dat.rep.D
+save(D.state, file = paste0("data/", i.s, "_D_state_", as.character(date.update), ".rda"))
 
-# ind = (1:nrow(dat.I))[apply(is.na(dat.I[, -1]), 1, sum) > 0]
-# dat3.plot = res3.OD$dat.sub[ind,]
-# plot.cdcar(dat3.plot, "state")
-# dat4.plot = dat.rep$dat.rep.I[ind,]
-# plot.cdcar(dat4.plot, "state")
+##########
+var.county.o = names(I.county)
+test = I.county[, -(1:3)] - D.county[, -(1:3)]
+sum(test < 0)
+ind = which(test < 0, arr.ind = TRUE)
+for(i in 1:nrow(ind)){
+  indi = ind[i, ]
+  indi[2] = indi[2] + 3
+  cat("Now working on:", indi, "\n")
+  cat("Before: D =", D.county[indi[1], indi[2]], "I =", I.county[indi[1], indi[2]])
+  D.county[indi[1], indi[2]] = I.county[indi[1], indi[2]]
+  cat(" After: D =", D.county[indi[1], indi[2]], "I =", I.county[indi[1], indi[2]], "\n")
+}
+test = I.county[, -(1:3)] - D.county[, -(1:3)]
+sum(test < 0)
 
-I.county.JP = detect.JP(I.county,  window.s = 1, window.l = 9, trun.scale = 6, level = "county")
-D.county.JP = detect.JP(D.county,  window.s = 1, window.l = 9, trun.scale = 6, level = "county")
+I.county.JP = detect.JP(dat = I.county, window = 14, level = "county")
+I.county.JP = I.county.JP$dat.new
+D.county.JP = detect.JP(dat = D.county, window = 14, level = "county")
+D.county.JP = D.county.JP$dat.new
+sum(is.na(I.county.JP))
+sum(is.na(D.county.JP))
+
+dat.county.JPrep = repair.JP(dat.I.JP = I.county.JP, dat.D.JP = D.county.JP, dat.I = I.county, dat.D = D.county, level = "county")
+I.county.JPrep = dat.county.JPrep$dat.rep.I
+I.county.JPrep = eval(parse(text = paste0("I.county.JPrep", " = I.county.JPrep[,c(1:3, ncol(I.county.JPrep):4)]")))
+names(I.county.JPrep) = var.county.o
+file.name = paste0("data/", i.s, "_Cum_Infected_county_", as.character(date.update), "_updated.tsv")
+write.table(I.county.JPrep, file = file.name, quote = FALSE, sep = "\t", row.names = FALSE)
+
+D.county.JPrep = dat.county.JPrep$dat.rep.D
+D.county.JPrep = eval(parse(text = paste0("D.county.JPrep", " = D.county.JPrep[,c(1:3, ncol(D.county.JPrep):4)]")))
+names(D.county.JPrep) = var.county.o
+file.name = paste0("data/", i.s, "_Cum_Death_county_", as.character(date.update), "_updated.tsv")
+write.table(D.county.JPrep, file = file.name, quote = FALSE, sep = "\t", row.names = FALSE)
 
 ######################################################################
-# 2. Change Point detection
-res3.CP = detect.CP(dat.rep$dat.rep.I, level = "state", manual.decision = TRUE)
-res4.CP = detect.CP(dat.rep$dat.rep.D, level = "state", manual.decision = TRUE)
-ind = (1:nrow(dat.I))[apply(is.na(res4.CP$dat.new), 1, sum) > 0]
+var.state.o = names(I.state)
+test = I.state[, -1] - D.state[, -1]
+sum(test < 0)
 
+I.JP = detect.JP(dat = I.state, window = 14, level = "state")
+D.JP = detect.JP(dat = D.state, window = 14, level = "state")
+I.state.JP = I.JP$dat.new
+D.state.JP = D.JP$dat.new
+sum(is.na(I.state.JP))
+sum(is.na(D.state.JP))
 
+dat.state.JPrep = repair.JP(dat.I.JP = I.state.JP, dat.D.JP = D.state.JP, dat.I = I.state, dat.D = D.state, level = "state")
+I.state.JPrep = dat.state.JPrep$dat.rep.I
+I.state.JPrep = eval(parse(text = paste0("I.state.JPrep", " = I.state.JPrep[,c(1, ncol(I.state.JPrep):2)]")))
+names(I.state.JPrep) = var.state.o
+file.name = paste0("data/", i.s, "_Cum_Infection_state_", as.character(date.update), "_updated.tsv")
+write.table(I.state.JPrep, file = file.name, quote = FALSE, sep = "\t", row.names = FALSE)
 
-######################################################################
-# 3. Delay reporting detection
-res3.DR = detect.DR(dat.rep$dat.rep.I, level = "state")
-res4.DR = detect.DR(dat.rep$dat.rep.D, level = "state")
-ind = (1:nrow(res3.DR$dat.sub))[res3.DR$dr.res[, 2] == 1]
-dat3.plot = res3.DR$dat.sub[ind,]
-plot.cdcar(dat3.plot, "state")
-ind = (1:nrow(res4.DR$dat.sub))[res4.DR$dr.res[, 2] == 1]
-dat4.plot = res4.DR$dat.sub[ind,]
-plot.cdcar(dat4.plot, "state")
+D.state.JPrep = dat.state.JPrep$dat.rep.D
+D.state.JPrep = eval(parse(text = paste0("D.state.JPrep", " = D.state.JPrep[,c(1, ncol(D.state.JPrep):2)]")))
+names(D.state.JPrep) = var.state.o
+file.name = paste0("data/", i.s, "_Cum_Death_state_", as.character(date.update), "_updated.tsv")
+write.table(D.state.JPrep, file = file.name, quote = FALSE, sep = "\t", row.names = FALSE)
