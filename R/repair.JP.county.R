@@ -31,11 +31,20 @@ repair.JP.county <- function(dat.I.JP = list(), dat.D.JP = list(), dat.I = list(
     ni = length(var.names)
     diffi = as.numeric(Inew.tmp01[ni] - Inew.tmp02[ni])
     Inew.tmp03 = round(Inew.tmp02/sum(Inew.tmp02) * diffi)
-    if((diffi - sum(Inew.tmp03)) < 0){
-      ind.nz = (1:ni)[Inew.tmp03 > 0]
-      Inew.tmp03[ind.nz[1:(sum(Inew.tmp03) - diffi)]] = Inew.tmp03[ind.nz[1:(sum(Inew.tmp03) - diffi)]] - 1
+    if(is.na(Inew.tmp03)){
+      if(length(Inew.tmp02) <= diffi){
+        Inew.tmp03 = rep(1, length(Inew.tmp02))
+        Inew.tmp03[ni] = Inew.tmp03[ni] + diffi - length(Inew.tmp02)
+      }else{
+        Inew.tmp03 = c(rep(0, (length(Inew.tmp02) - diffi)), rep(1, diffi))
+      }
     }else{
-      Inew.tmp03[ni] = Inew.tmp03[ni] + diffi - sum(Inew.tmp03)
+      if((diffi - sum(Inew.tmp03)) < 0){
+        ind.nz = (1:ni)[Inew.tmp03 > 0]
+        Inew.tmp03[ind.nz[1:(sum(Inew.tmp03) - diffi)]] = Inew.tmp03[ind.nz[1:(sum(Inew.tmp03) - diffi)]] - 1
+      }else{
+        Inew.tmp03[ni] = Inew.tmp03[ni] + diffi - sum(Inew.tmp03)
+      }
     }
     Iadd[indi[1], var.names] = cumsum(matrix(Inew.tmp03, nrow = 1))
     Inew.rep[indi[1], var.names] = Inew.rep[indi[1], var.names] + Inew.tmp03
