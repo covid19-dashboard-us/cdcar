@@ -9,7 +9,7 @@ library(seastests)
 library(segmented)
 library(tscount)
 
-date.update = as.Date("2020-08-15")
+date.update = as.Date("2020-08-16")
 
 ######################################################################
 # Step 0. Read in Data
