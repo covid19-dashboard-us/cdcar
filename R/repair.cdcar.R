@@ -2,7 +2,7 @@
 #'
 #' This function repairs the abnormal data in covid-19 data (or similar type of data including the count time series and epidemic data).
 #'
-#' @import tscount
+#' @import forecast
 #' @import mgcv
 #' @importFrom Triangulation TriMesh TriPlot
 #' @importFrom BPST basis inVT
@@ -25,27 +25,24 @@
 #'
 #' @export
 #'
-repair.cdcar <- function(dat.I = list(), dat.D = NULL, h = 7, level = "county", method = "AR"){
+repair.cdcar <- function(dat.I = list(), dat.D = NULL, h = 7, level = "county", method = "ARIMA"){
   if(level == "state"){
-    if(method == "ARMA"){
-      dat.rep = repair.ARMA.state(dat.I, dat.D, h)
-    }else if(method == "CLEP"){
+    if(method == "CLEP"){
       dat.rep = repair.CLEP.state(dat.I, dat.D, h)
     }else if(method == "STEM"){
       dat.rep = repair.STEM.state(dat.I, dat.D, h)
     }else{
-      dat.rep = repair.AR.state(dat.I, dat.D, h)
+      dat.rep = repair.ARIMA.state(dat.I, dat.D, h)
     }
   }
+
   if(level == "county"){
-    if(method == "ARMA"){
-      dat.rep = repair.ARMA.county(dat.I, dat.D, h)
-    }else if(method == "CLEP"){
+    if(method == "CLEP"){
       dat.rep = repair.CLEP.county(dat.I, dat.D, h)
     }else if(method == "STEM"){
       dat.rep = repair.STEM.county(dat.I, dat.D, h)
     }else{
-      dat.rep = repair.AR.county(dat.I, dat.D, h)
+      dat.rep = repair.ARIMA.county(dat.I, dat.D, h)
     }
   }
   return(dat.rep)

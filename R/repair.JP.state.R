@@ -3,7 +3,7 @@
 #' This function repairs the state level covid-19 data (or similar type of data including the count time series and epidemic data) using autoregressive model of count time series.
 #'
 repair.JP.state <- function(dat.I.JP = list(), dat.D.JP = list(), dat.I = list(), dat.D = list(), h = 7, date.start = as.Date("2020-03-01")){
-  dat.rep.state = repair.cdcar(dat.I = dat.I.JP, dat.D = dat.D.JP, h = h, level = "state", method = "CLEP")
+  dat.rep.state = repair.cdcar(dat.I = dat.I.JP, dat.D = dat.D.JP, h = h, level = "state", method = "ARIMA")
   dat.I.JPrep = dat.rep.state$dat.rep.I
   dat.D.JPrep = dat.rep.state$dat.rep.D
 
@@ -61,7 +61,11 @@ repair.JP.state <- function(dat.I.JP = list(), dat.D.JP = list(), dat.I = list()
     indi = matrix(ind.D[i, ], ncol = 2)
     date.end = dates[indi[2] - 1]
     var.names = as.character(seq(date.start, date.end, by = 1))
-    Dnew.rep[indi[1], as.character(date.end + 1)] = Dnew[indi[1], as.character(date.end + 1)]
+    if((indi[2] - 1) < n.day){
+      Dnew.rep[indi[1], as.character(date.end + 1)] = Dnew[indi[1], as.character(date.end + 1)]
+    }else{
+      Dnew.rep[indi[1], as.character(date.end)] = Dnew[indi[1], as.character(date.end)]
+    }
     Dnew.tmp01 = Dnew[indi[1], var.names]
     Dnew.tmp02 = Dnew.rep[indi[1], var.names]
     ni = length(var.names)

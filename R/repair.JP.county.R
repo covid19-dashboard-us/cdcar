@@ -3,7 +3,7 @@
 #' This function repairs the county level covid-19 data (or similar type of data including the count time series and epidemic data) using autoregressive model of count time series.
 #'
 repair.JP.county <- function(dat.I.JP = list(), dat.D.JP = list(), dat.I = list(), dat.D = list(), h = 7, date.start = as.Date("2020-03-01")){
-  dat.rep.county = repair.cdcar(dat.I = dat.I.JP, dat.D = dat.D.JP, h = h, level = "county", method = "CLEP")
+  dat.rep.county = repair.cdcar(dat.I = dat.I.JP, dat.D = dat.D.JP, h = h, level = "county", method = "ARIMA")
   dat.I.JPrep = dat.rep.county$dat.rep.I
   dat.D.JPrep = dat.rep.county$dat.rep.D
 

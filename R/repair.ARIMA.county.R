@@ -2,7 +2,7 @@
 #'
 #' This function repairs the county level covid-19 data (or similar type of data including the count time series and epidemic data) using autoregressive model of count time series.
 #'
-repair.AR.county <- function(dat.I = list(), dat.D = NULL, h = 7){
+repair.ARIMA.county <- function(dat.I = list(), dat.D = NULL, h = 7){
   dat.rep.I = dat.I
   dat.rep.D = dat.D
   # Infection model repairing
@@ -17,11 +17,11 @@ repair.AR.county <- function(dat.I = list(), dat.D = NULL, h = 7){
         dat.tmp = dat.rep.I[j,]
         tmp01 = as.matrix(dat.tmp[1:(i - 1)])
         diff = as.vector(tmp01 - c(0, tmp01[-(i - 1)]))
-        mfit.nb = tsglm(diff, model = list(past_obs = h), distr = "nbinom")
-        value.nb = predict(mfit.nb, n.ahead = 1)$median
-        mfit.pois = tsglm(diff, model = list(past_obs = h), distr = "poisson")
-        value.pois = predict(mfit.pois, n.ahead = 1)$median
-        value = min(value.nb, value.pois, na.rm = TRUE)
+        diff = log(diff + 1)
+        diff = ts(diff, frequency = 7)
+        mfit = auto.arima(diff)
+        mpred = forecast(mfit, h = 1)
+        value = max(floor(exp(mpred$mean) - 1), 0)
         if(is.na(value) | is.infinite(value)){value = 0}
         dat.rep.I[j, i] = dat.rep.I[j, (i - 1)] + value
         if(i < n.day){
@@ -48,11 +48,11 @@ repair.AR.county <- function(dat.I = list(), dat.D = NULL, h = 7){
         dat.tmp = dat.rep.D[j,]
         tmp01 = as.matrix(dat.tmp[1:(i - 1)])
         diff = as.vector(tmp01 - c(0, tmp01[-(i - 1)]))
-        mfit.nb = tsglm(diff, model = list(past_obs = h), distr = "nbinom")
-        value.nb = predict(mfit.nb, n.ahead = 1)$median
-        mfit.pois = tsglm(diff, model = list(past_obs = h), distr = "poisson")
-        value.pois = predict(mfit.pois, n.ahead = 1)$median
-        value = min(value.nb, value.pois, na.rm = TRUE)
+        diff = log(diff + 1)
+        diff = ts(diff, frequency = 7)
+        mfit = auto.arima(diff)
+        mpred = forecast(mfit, h = 1)
+        value = max(floor(exp(mpred$mean) - 1), 0)
         if(is.na(value) | is.infinite(value)){value = 0}
         dat.rep.D[j, i] = dat.rep.D[j, (i - 1)] + value
         if(i < n.day){
